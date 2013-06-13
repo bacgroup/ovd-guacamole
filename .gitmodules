@@ -1,9 +1,3 @@
-[submodule "guacamole-common"]
-	path = guacamole-common
-	url = git://guacamole.git.sourceforge.net/gitroot/guacamole/guacamole-common
-[submodule "guacamole-common-auth"]
-	path = guacamole-common-auth
-	url = git://guacamole.git.sourceforge.net/gitroot/guacamole/guacamole-common-auth
 [submodule "libguac"]
 	path = libguac
 	url = git@code.ulteo.com:guacamole/libguac
@@ -31,3 +25,9 @@
 [submodule "freerdp"]
 	path = freerdp
 	url = git@code.ulteo.com:freerdp.git
+[submodule "common"]
+	path = common
+	url = git@code.ulteo.com:guacamole/common
+[submodule "common-auth"]
+	path = common-auth
+	url = git@code.ulteo.com:guacamole/common-auth
