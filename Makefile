@@ -2,20 +2,26 @@ PWD:=$(shell pwd)
 BUILD_DIR?=$(PWD)/guac-out
 LDCONFIG_FREERDP=$(shell pkg-config $(shell find $(BUILD_DIR) -name freerdp.pc) --libs-only-L)
 CFLAGS_FREERDP=$(shell pkg-config $(shell find $(BUILD_DIR) -name freerdp.pc) --cflags)
-MAKE_CPU=8
+MAKE_CPU?=8
 MKTEMP=$(shell mktemp -d)
 
-all: libguac freerdp libguac-client-rdp guacd mvn conf auth
+all: libguac freerdp libguac-client-rdp guacd mvn conf
+
+
+clean: libguac-clean freerdp-clean libguac-client-rdp-clean guacd-clean
+	rm -rf $(BUILD_DIR)
+
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+
 
 libguac-prep:
 	cd libguac; aclocal
 	cd libguac; libtoolize
 	cd libguac; autoconf
 	cd libguac; automake -a
-	cd libguac; ./configure --prefix=$(BUILD_DIR)
+	cd libguac; ./configure --prefix=$(BUILD_DIR)/usr
 
 libguac-build: $(BUILD_DIR) libguac-prep
 	make -C libguac -j $(MAKE_CPU)
@@ -26,19 +32,23 @@ libguac-install: libguac-build
 libguac: libguac-install
 
 libguac-clean:
-	make -C libguac distclean
+	if [ -f libguac/Makefile ]; then make -C libguac distclean; fi
 
 
 freerdp-prep:
-	cd freerdp; cmake -DCMAKE_INSTALL_PREFIX=$(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -DWITH_ULTEO_PDF_PRINTER=ON -DWITH_CUPS=OFF -DWITH_X11=OFF -DWITH_XCURSOR=OFF -DWITH_XEXT=OFF -DWITH_XINERAMA=OFF -DWITH_XV=OFF -DWITH_XKBFILE=OFF -DWITH_FFMPEG=OFF -DWITH_ALSA=OFF
+	mkdir -p freerdp/.build
+	cd freerdp/.build; cmake .. -DCMAKE_INSTALL_PREFIX=$(BUILD_DIR)/usr -DCMAKE_BUILD_TYPE=Release -DWITH_ULTEO_PDF_PRINTER=ON -DWITH_CUPS=OFF -DWITH_X11=OFF -DWITH_XCURSOR=OFF -DWITH_XEXT=OFF -DWITH_XINERAMA=OFF -DWITH_XV=OFF -DWITH_XKBFILE=OFF -DWITH_FFMPEG=OFF -DWITH_ALSA=OFF
 
 freerdp-build: freerdp-prep
-	cd freerdp; make -j $(MAKE_CPU)
+	make -C freerdp/.build -j $(MAKE_CPU)
 
 freerdp-install: freerdp-build
-	make -C freerdp install
+	make -C freerdp/.build install
 
 freerdp: freerdp-install
+
+freerdp-clean:
+	rm -rf freerdp/.build
 
 
 libguac-client-rdp-prep: 
@@ -47,22 +57,25 @@ libguac-client-rdp-prep:
 	sed -i 's/AC_FUNC_MALLOC/#AC_FUNC_MALLOC/' libguac-client-rdp/configure.in 
 	cd libguac-client-rdp; autoconf
 	cd libguac-client-rdp; automake -a
-	cd libguac-client-rdp; LDFLAGS="-L$(BUILD_DIR)/lib $(LDCONFIG_FREERDP)" CFLAGS="$(CFLAGS_FREERDP)" ./configure --prefix=$(BUILD_DIR)
+	cd libguac-client-rdp; export LD_LIBRARY_PATH="$(BUILD_DIR)/usr/lib"; export LDFLAGS="-L$(BUILD_DIR)/usr/lib $(LDCONFIG_FREERDP)"; export CFLAGS="$(CFLAGS_FREERDP)"; ./configure --prefix=$(BUILD_DIR)/usr
 
 libguac-client-rdp-build: libguac-client-rdp-prep
-	make -C libguac-client-rdp -j $(MAKE_CPU)
+	export LD_LIBRARY_PATH="$(BUILD_DIR)/usr/lib"; make -C libguac-client-rdp -j $(MAKE_CPU)
 
 libguac-client-rdp-install: libguac-client-rdp-build
 	make -C libguac-client-rdp install
 
 libguac-client-rdp: libguac-client-rdp-install
 
+libguac-client-rdp-clean:
+	if [ -f libguac-client/Makefile ]; then make -C libguac-client-rdp distclean; fi
+
 
 guacd-prep:
 	cd guacd; aclocal
 	cd guacd; autoconf
 	cd guacd; automake -a
-	cd guacd; LDFLAGS="-L$(BUILD_DIR)/lib" CFLAGS="-I$(BUILD_DIR)/include" ./configure --with-init-dir=$(BUILD_DIR)/etc/init.d --prefix=$(BUILD_DIR)
+	cd guacd; env LDFLAGS="-L$(BUILD_DIR)/usr/lib" CFLAGS="-I$(BUILD_DIR)/usr/include" ./configure --with-init-dir=$(BUILD_DIR)/etc/init.d --prefix=$(BUILD_DIR)/usr
 
 guacd-build: guacd-prep
 	make -C guacd
@@ -71,6 +84,9 @@ guacd-install: guacd-build
 	make -C guacd install
 
 guacd: guacd-install
+
+guacd-clean:
+	if [ -f guacd/Makefile ]; then make -C guacd distclean; fi
 
 
 mvn:
@@ -82,25 +98,26 @@ mvn:
 	cd common-js; mvn -B install
 	cd guacamole; mvn -B package
 	cd guacamole; mvn -B install
-	cp guacamole/target/guacamole-default-webapp-0.6.0.war $(BUILD_DIR)
+	cd auth-ulteo-ovd; mvn package
+	## règle un problème de classe introuvable
+	sed -i 's/GuacamoleServerException/Exception/' printing/src/main/java/net/sourceforge/guacamole/net/printing/GuacamolePrinterServlet.java
+	cd printing; mvn package
+	mkdir -p $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp
+	cd $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp; unzip $(PWD)/guacamole/target/guacamole-default-webapp-0.6.0.war
+	tar xvzf auth-ulteo-ovd/target/guacamole-auth-ulteo-ovd-0.6.0.tar.gz -C $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp/WEB-INF/ --strip 1
+	tar xvzf printing/target/guacamole-printing-0.6.0.tar.gz -C $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp/WEB-INF/ --strip 1
+	cd $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp; zip -r ../guacamole.war *
+	rm -rf $(BUILD_DIR)/var/lib/tomcat6/webapps/tmp
 
 
 conf:
-	cp guacamole/doc/example/guacamole.properties $(BUILD_DIR)
-	sed -i 's/auth-provider:.*$$/auth-provider: net.sourceforge.guacamole.net.auth.ovd.UlteoOVDAuthenticationProvider/' $(BUILD_DIR)/guacamole.properties
-	sed -i 's/basic-user-mapping:.*$$//' $(BUILD_DIR)/guacamole.properties
-
-
-auth:
-	cd auth-ulteo-ovd; mvn package
-	$(eval TMP := $(MKTEMP))
-	mkdir $(TMP)/guacamole-ulteo
-	tar xvzf auth-ulteo-ovd/target/guacamole-auth-ulteo-ovd-0.6.0.tar.gz -C $(TMP)/
-	cp $(TMP)/guacamole-auth-ulteo-ovd-0.6.0/lib/* $(TMP)/guacamole-ulteo/
-	### règle un problème de classe introuvable
-	sed -i 's/GuacamoleServerException/Exception/' printing/src/main/java/net/sourceforge/guacamole/net/printing/GuacamolePrinterServlet.java
-	cd printing; mvn package
-	tar xvzf printing/target/guacamole-printing-0.6.0.tar.gz -C $(TMP)/
-	cp $(TMP)/guacamole-printing-0.6.0/lib/* $(TMP)/guacamole-ulteo/
-	cd $(TMP)/guacamole-ulteo; tar cvjf $(BUILD_DIR)/guacamole-ulteo.tar.bz2 *.jar
-	rm -rf $(TMP)
+	mkdir -p $(BUILD_DIR)/usr/share/tomcat6/lib
+	cp guacamole/doc/example/guacamole.properties $(BUILD_DIR)/usr/share/tomcat6/lib/
+	sed -i 's/auth-provider:.*$$/auth-provider: net.sourceforge.guacamole.net.auth.ovd.UlteoOVDAuthenticationProvider/' $(BUILD_DIR)/usr/share/tomcat6/lib/guacamole.properties
+	sed -i 's/basic-user-mapping:.*$$//' $(BUILD_DIR)/usr/share/tomcat6/lib/guacamole.properties
+	sed -i 's#$(BUILD_DIR)##' $(BUILD_DIR)/etc/init.d/guacd
+	mkdir -p $(BUILD_DIR)/var/spool/ulteo/pdf-printer
+	mkdir -p $(BUILD_DIR)/etc/ulteo/webclient
+	cp data/apache.conf $(BUILD_DIR)/etc/ulteo/webclient/apache2-html5.conf
+	mkdir -p $(BUILD_DIR)/etc/apache2/conf.d
+	ln -s /etc/ulteo/webclient/apache2-html5.conf $(BUILD_DIR)/etc/apache2/conf.d/webclient-html5.conf
