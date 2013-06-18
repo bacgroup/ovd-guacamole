@@ -120,4 +120,3 @@ conf:
 	mkdir -p $(BUILD_DIR)/etc/ulteo/webclient
 	cp data/apache.conf $(BUILD_DIR)/etc/ulteo/webclient/apache2-html5.conf
 	mkdir -p $(BUILD_DIR)/etc/apache2/conf.d
-	ln -s /etc/ulteo/webclient/apache2-html5.conf $(BUILD_DIR)/etc/apache2/conf.d/webclient-html5.conf
