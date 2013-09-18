@@ -9,13 +9,13 @@ upbuilder:
       builder: tar
       archs: $(consts.ANY_ARCH)
       clones: 
-        - { dest: "libguac", orig: "git@code.ulteo.com:guacamole/libguac", branch: "feature/JsFramework" }
-        - { dest: "guacamole", orig: "git@code.ulteo.com:guacamole/guacamole", branch: "ovd" }
-        - { dest: "guacd", orig: "git@code.ulteo.com:guacamole/guacd", branch: "ovd" }
-        - { dest: "libguac-client-rdp", orig:  "git@code.ulteo.com:guacamole/libguac-client-rdp", branch: "feature/JsFramework" }
-        - { dest: "common-js", orig: "git@code.ulteo.com:guacamole/common-js", branch: "ovd" }
-        - { dest: "auth-ulteo-ovd", orig: "git@code.ulteo.com:guacamole/auth-ulteo-ovd", branch: "feature/JsFramework" }
-        - { dest: "printing", orig: "git@code.ulteo.com:guacamole/printing", branch: "master" }
-        - { dest: "freerdp", orig: "git@code.ulteo.com:freerdp.git", branch: "feature/JsFramework" }
-        - { dest: "common", orig: "git@code.ulteo.com:guacamole/common", branch: "develop" }
-        - { dest: "common-auth", orig: "git@code.ulteo.com:guacamole/common-auth", branch: "develop" }
+        - { dest: "libguac", orig: "/guacamole/libguac", branch: "feature/JsFramework" }
+        - { dest: "guacamole", orig: "/guacamole/guacamole", branch: "ovd" }
+        - { dest: "guacd", orig: "/guacamole/guacd", branch: "ovd" }
+        - { dest: "libguac-client-rdp", orig:  "/guacamole/libguac-client-rdp", branch: "feature/JsFramework" }
+        - { dest: "common-js", orig: "/guacamole/common-js", branch: "ovd" }
+        - { dest: "auth-ulteo-ovd", orig: "/guacamole/auth-ulteo-ovd", branch: "feature/JsFramework" }
+        - { dest: "printing", orig: "/guacamole/printing", branch: "master" }
+        - { dest: "freerdp", orig: "/freerdp", branch: "feature/JsFramework" }
+        - { dest: "common", orig: "/guacamole/common", branch: "develop" }
+        - { dest: "common-auth", orig: "/guacamole/common-auth", branch: "develop" }
