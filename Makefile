@@ -37,6 +37,7 @@ libguac-clean:
 
 freerdp-prep:
 	mkdir -p freerdp/.build
+	sed -i 's@$${FREERDP_PLUGIN_PATH}@/usr/$${CMAKE_INSTALL_LIBDIR}/freerdp@g' freerdp/libfreerdp-utils/CMakeLists.txt
 	cd freerdp/.build; cmake .. -DCMAKE_INSTALL_PREFIX=$(BUILD_DIR)/usr -DCMAKE_BUILD_TYPE=Release -DWITH_ULTEO_PDF_PRINTER=ON -DWITH_CUPS=OFF -DWITH_X11=OFF -DWITH_XCURSOR=OFF -DWITH_XEXT=OFF -DWITH_XINERAMA=OFF -DWITH_XV=OFF -DWITH_XKBFILE=OFF -DWITH_FFMPEG=OFF -DWITH_ALSA=OFF
 
 freerdp-build: freerdp-prep
