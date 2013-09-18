@@ -8,7 +8,9 @@ service apache2 reload || true
 service guacd stop || true
 update-rc.d -f guacd remove
 
-sed -i "s@define('RDP_PROVIDER_HTML5_INSTALLED', true);@// define('RDP_PROVIDER_HTML5_INSTALLED', true);@g" /etc/ulteo/webclient/config.inc.php
+if [ -f /etc/ulteo/webclient/config.inc.php ]; then
+	sed -i "s@define('RDP_PROVIDER_HTML5_INSTALLED', true);@// define('RDP_PROVIDER_HTML5_INSTALLED', true);@g" /etc/ulteo/webclient/config.inc.php
+fi
 
 #DEBHELPER#
 

@@ -14,7 +14,9 @@ service apache2 restart || true
 service guacd restart || true
 update-rc.d guacd defaults
 
-sed -i "s@// define('RDP_PROVIDER_HTML5_INSTALLED', true);@define('RDP_PROVIDER_HTML5_INSTALLED', true);@g" /etc/ulteo/webclient/config.inc.php
+if [ -f /etc/ulteo/webclient/config.inc.php ]; then
+	sed -i "s@// define('RDP_PROVIDER_HTML5_INSTALLED', true);@define('RDP_PROVIDER_HTML5_INSTALLED', true);@g" /etc/ulteo/webclient/config.inc.php
+fi
 
 #DEBHELPER#
 
