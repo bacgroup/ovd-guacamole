@@ -76,7 +76,7 @@ guacd-prep:
 	cd guacd; aclocal
 	cd guacd; autoconf
 	cd guacd; automake -a
-	cd guacd; env LDFLAGS="-L$(BUILD_DIR)/usr/lib" CFLAGS="-I$(BUILD_DIR)/usr/include" ./configure --with-init-dir=$(BUILD_DIR)/etc/init.d --prefix=$(BUILD_DIR)/usr
+	cd guacd; env LDFLAGS="-L$(BUILD_DIR)/usr/lib" CFLAGS="-I$(BUILD_DIR)/usr/include" ./configure --with-init-dir=$(BUILD_DIR)/etc/init.d --with-default-dir=$(BUILD_DIR)/etc/default --prefix=$(BUILD_DIR)/usr
 
 guacd-build: guacd-prep
 	make -C guacd
