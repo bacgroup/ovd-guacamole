@@ -10,6 +10,8 @@ build-arch:
 
 binary-install/ulteo-ovd-guacamole::
 	cp -r $(DEB_DH_INSTALL_SOURCEDIR)/* $(DEB_DESTDIR)
+	mv $(DEB_DESTDIR)/etc/init.d/guacd.debian $(DEB_DESTDIR)/etc/init.d/guacd
+	rm $(DEB_DESTDIR)/etc/init.d/guacd.*
 
 clean::
 	make BUILD_DIR=$(DEB_DH_INSTALL_SOURCEDIR) clean
