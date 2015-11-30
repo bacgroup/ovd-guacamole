@@ -1,8 +1,8 @@
 #!/bin/sh -e
 
-A2CONFDIR=/etc/apache2/conf.d
+A2CONFDIR=/etc/apache2
 
-rm -f $A2CONFDIR/webclient-html5.conf
+rm -f $A2CONFDIR/sites-available/webclient-html5.conf
 
 service apache2 reload || true
 service guacd stop || true

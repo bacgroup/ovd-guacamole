@@ -1,10 +1,11 @@
 #!/bin/sh -e
 
 CONFDIR=/etc/ulteo/webclient
-A2CONFDIR=/etc/apache2/conf.d
+A2CONFDIR=/etc/apache2
 
-if [ ! -e $A2CONFDIR/webclient-html5.conf ]; then
-	ln -sfT $CONFDIR/apache2-html5.conf $A2CONFDIR/webclient-html5.conf
+if [ ! -e $A2CONFDIR/sites-available/webclient-html5.conf ]; then
+	ln -sfT $CONFDIR/apache2-html5.conf $A2CONFDIR/sites-available/webclient-html5.conf
+	ln -s $A2CONFDIR/sites-available/webclient-html5.conf $A2CONFDIR/sites-enabled/
 fi
 
 a2enmod proxy >/dev/null
