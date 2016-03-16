@@ -1,0 +1,30 @@
+[submodule "common"]
+	path = common
+	url = ../common.git
+[submodule "common-auth"]
+	path = common-auth
+	url = ../common-auth.git
+[submodule "common-js"]
+	path = common-js
+	url = ../common-js.git
+[submodule "guacamole"]
+	path = guacamole
+	url = ../guacamole.git
+[submodule "auth-ulteo-ovd"]
+	path = auth-ulteo-ovd
+	url = ../auth-ulteo-ovd.git
+[submodule "libguac"]
+	path = libguac
+	url = ../libguac.git
+[submodule "libguac-client-rdp"]
+	path = libguac-client-rdp
+	url = ../libguac-client-rdp.git
+[submodule "guacd"]
+	path = guacd
+	url = ../guacd.git
+[submodule "printing"]
+	path = printing
+	url = ../printing.git
+[submodule "freerdp"]
+	path = freerdp
+	url = ../freerdp.git
